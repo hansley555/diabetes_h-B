@@ -1,0 +1,991 @@
+   <!DOCTYPE html>
+ <head>
+<!--CSS-->
+<title>Diabetes App</title>
+<meta name="viewport" content="width = device-width, initial-scale=1">
+<meta charset="utf-8">
+<!--jQuery Core Library -->
+<link rel="stylesheet" href="leaflet/leaflet.css"/>
+<script src="leaflet/leaflet.js"></script>
+<link rel="stylesheet" href="js1/main1.css">
+<!--
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">-->
+
+<!--jQuery Mobile Library -->
+<link rel="stylesheet" type="text/css" href="css1/jquery.mobile.flatui.css" />
+<script src="js1/jquery.js"></script>
+<script src="js1/jquery.mobile-1.4.0-rc.1.js"></script>
+<script src="cordova.js"></script>
+<!--charts -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+<script type="text/javascript">
+  document.addEventListener("deviceready", onDeviceReady, false);
+  var db;
+  function onDeviceReady(){
+    //alert("device ready");
+    
+     db = window.openDatabase("data", "1.0", "1st Simple Demo", 4*1024*1024); 
+
+     db.transaction(createDB, errorCB, successCB); 
+    
+  }
+  
+  function createDB(tx){ 
+  tx.executeSql('CREATE TABLE IF NOT EXISTS insulindata (days TEXT, number TEXT, date TEXT, time TEXT)');
+  tx.executeSql('CREATE TABLE IF NOT EXISTS glucose (reading TEXT, dateread TEXT, timeread TEXT)');
+  
+  
+  } 
+  
+  function errorCB(err){ 
+  alert("SQL Error: "+err.message);
+  } 
+  
+  function successCB(){ 
+  //alert("Database & Table Created");
+  }
+  
+  function submitForm(){ 
+  db.transaction(insertDB, errorCB);
+   $.mobile.changePage("#pagetab", {reverse:false, transition:"slide"}); 
+
+  return false; 
+  }
+  function submitForm1(){ 
+  db.transaction(insertDB1, errorCB);
+   
+
+  return false; 
+  }
+
+  
+  function insertDB(tx){ 
+
+    
+    var days_c=document.getElementById('week').value;	
+
+    var number_c=$("[name='number']").val();
+  
+    
+    var date_c=document.getElementById('d1').value;
+
+    var time_c=document.getElementById('t1').value;
+
+    var sql='INSERT INTO insulindata (days,number,date,time) VALUES (?,?,?,?)'; 
+
+  tx.executeSql(sql,[days_c,number_c,date_c,time_c], successQueryDB, errorCB); 
+ 
+  } 
+function insertDB1(tx){ 
+	/*glucose*/
+    var reading=$("[name='mg']").val();
+    
+    var date1_c=document.getElementById('d2').value;
+
+    var time1_c=document.getElementById('t2').value;
+/*glucose*/
+ var sql1='INSERT INTO glucose (reading,dateread,timeread) VALUES (?,?,?)'; 
+	 /*glucose*/
+   tx.executeSql(sql1,[reading,date1_c,time1_c], successQueryDB, errorCB);
+}
+
+  
+  function successQueryDB(tx){ 
+  alert("Insert Successful");
+
+    tx.executeSql('SELECT days FROM insulindata', [], renderListCB, errorCB);
+  
+
+
+
+  } 
+  
+ function renderListCB(tx, results){
+ 	  
+    var htmlString = ' '; 
+	var len = results.rows.length; 
+	for(var i=0; i<len;i++){  
+    htmlString+='<li>'+results.rows.item(i).days+'<br>'+results.rows.item(i).number+'<br>'+results.rows.item(i).date+'<br>'+results.rows.item(i).time+'</li>';
+	
+		
+	} 
+	$('#resultList').html(htmlString); 
+	$('#resultList').listview('refresh');
+	} 
+ 
+
+   </script>
+
+   
+ </head>
+
+  <html>
+
+ <body>
+
+
+<div data-role="page" class="jqm-demos" id="pagehome" data-title="Home">
+
+    <div data-role="header" data-position="fixed" data-theme="b">
+        <h2>Homepages Menu</h2>
+        <a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
+    </div><!-- /header -->
+
+  <div data-role="panel" data-position-fixed="true" data-display="overlay" data-theme="a" id="nav-panel" style='background-color:#2C3E50;'>
+    <ul data-role="listview">
+        <li><a href="#homepage" class="ui-btn ui-btn-icon-right ui-icon-home" id="slidepan">Home</a></li>
+                <li><a href="#selfexam" class="ui-btn ui-btn-icon-left ui-icon-eye" id="slidepan1">Did You Know?</a></li>
+                <li><a href="#sign" class="ui-btn ui-btn-icon-left ui-icon-alert" id="slidepan2">Sign and symptoms</a></li>
+                <li><a href="#wvideo" class="ui-btn ui-btn-icon-left ui-icon-heart" id="slidepan3">Click your Symptoms</a></li>
+                <li><a href="#min" class="ui-btn ui-btn-icon-left ui-icon-forbidden" id="slidepan4">Sources</a></li>
+                <li><a href="#remind" class="ui-btn ui-btn-icon-left ui-icon-calendar" id="slidepan5">Add reminder</a></li>
+                <li><a href="#aboutus" class="ui-btn ui-btn-icon-left ui-icon-user" id="slidepan6">About us</a></li>
+
+                <div data-role="collapsible" data-collapsed="true"data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+                <h4>Sports Zone</h4>
+                <ul data-role="listview" data-theme="b">
+                <li><a href="#geo" class="ui-btn ui-btn-icon-left ui-icon-location" id="slidepan7" >Nearby Gyms,Playgrounds</a></li                >
+                <li><a href="#bmi"  class="ui-btn ui-btn-icon-left ui-icon-grid" id="slidepan8">BMI (Body Mass Index)</a></li>
+                <li><a href="#tmr" class="ui-btn ui-btn-icon-left ui-icon-clock" id="slidepan9">Timer</a></li>
+                </ul>
+                </div>   
+                <li><a href="#add-form" class="ui-btn ui-btn-icon-left ui-icon-phone" id="slidepan10">Contact</a></li>
+        
+     
+    </ul>
+   </div>
+
+
+<div id="chartdiv"></div>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+#chartdiv {
+  width: 100%;
+  height: 400px;
+}
+
+</style>
+
+<script>
+// Themes begin
+am4core.useTheme(am4themes_animated);
+// Themes end
+
+// Create chart instance
+var chart = am4core.create("chartdiv", am4charts.XYChart);
+chart.paddingRight = 20;
+
+// Add data
+chart.data = [{
+  "year": "1",
+  "value": 2.67
+}, {
+  "year": "2",
+  "value": 4.11
+}, {
+  "year": "3",
+  "value": 15.6
+}, {
+  "year": "4",
+  "value": 6.47
+}, {
+  "year": "5",
+  "value": 8.25
+}, {
+  "year": "6",
+  "value": 10.0
+  }, {
+  "year": "7",
+  "value": 11.9
+  }, {
+  "year": "8",
+  "value": 6.3
+  }, {
+  "year": "9",
+  "value": 2.6
+  }, {
+  "year": "10",
+  "value": 19.3
+}];
+
+// Create axes
+var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+categoryAxis.dataFields.category = "year";
+categoryAxis.renderer.minGridDistance = 50;
+categoryAxis.renderer.grid.template.location = 0.5;
+categoryAxis.startLocation = 0.5;
+categoryAxis.endLocation = 0.5;
+
+// Create value axis
+var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+valueAxis.baseValue = 0;
+
+// Create series
+var series = chart.series.push(new am4charts.LineSeries());
+series.dataFields.valueY = "value";
+series.dataFields.categoryX = "year";
+series.strokeWidth = 2;
+series.tensionX = 0.77;
+
+// bullet is added because we add tooltip to a bullet for it to change color
+var bullet = series.bullets.push(new am4charts.Bullet());
+bullet.tooltipText = "{valueY}";
+
+bullet.adapter.add("fill", function(fill, target){
+    if(target.dataItem.valueY < 0){
+        return am4core.color("#FF0000");
+    }
+    return fill;
+})
+var range = valueAxis.createSeriesRange(series);
+range.value = 25;
+range.endValue = 11.9;
+range.contents.stroke = am4core.color("#FF0000");
+range.contents.fill = range.contents.stroke;
+
+// Add scrollbar
+var scrollbarX = new am4charts.XYChartScrollbar();
+scrollbarX.series.push(series);
+chart.scrollbarX = scrollbarX;
+
+chart.cursor = new am4charts.XYCursor();
+</script>
+
+
+<div data-role="footer" data-position="fixed" data-theme="b">
+<div data-role="navbar">
+<ul>
+<li><a href="#pagenews" data-icon="star" >News</a></li>
+<li><a href="#pageinsulin" data-icon="grid">Insulin</a></li>
+<li><a href="#pagehome" data-icon="home" class="ui-btn-active" data-theme="c" >Home</a></li>
+<li><a href="#gluc" data-icon="heart">Glucose</a></li>
+<li><a href="#remind" data-icon="gear">Reminder</a></li>
+</ul>
+
+</div><!-- /navbar -->
+</div><!-- /footer -->
+ </div>
+<!--page sports-->
+<div data-role="page"  id="remind" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+   <a href="#nav-panel" data-icon="bars" data-iconpos="notext">Menu</a>
+      <h1>Reminder</h1>
+    </div>
+  <div data-role="panel" data-position-fixed="true" data-display="overlay" data-theme="a" id="nav-panel" style='background-color:#2C3E50;'>
+    <ul data-role="listview">
+        <li><a href="#homepage" class="ui-btn ui-btn-icon-right ui-icon-home" id="slidepan">Home</a></li>
+                <li><a href="#selfexam" class="ui-btn ui-btn-icon-left ui-icon-eye" id="slidepan">Did You Know?</a></li>
+                <li><a href="#sign" class="ui-btn ui-btn-icon-left ui-icon-alert" id="slidepan">Sign and Symptoms</a></li>
+                <li><a href="#wvideo" class="ui-btn ui-btn-icon-left ui-icon-heart" id="slidepan">Click your Symptoms</a></li>
+                <li><a href="#food" class="ui-btn ui-btn-icon-left ui-icon-forbidden" id="slidepan">Sources</a></li>
+                <li><a href="#remind" class="ui-btn ui-btn-icon-left ui-icon-calendar" id="slidepan">Add reminder</a></li>
+                <li><a href="#aboutus" class="ui-btn ui-btn-icon-left ui-icon-user" id="slidepan">About us</a></li>
+
+                <div data-role="collapsible" data-collapsed="true"data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+                <h4>Sports Zone</h4>
+                <ul data-role="listview" data-theme="b">
+                <li><a href="#geo" class="ui-btn ui-btn-icon-left ui-icon-location" id="slidepan" >Nearby Gyms,Playgrounds</a></li                >
+                <li><a href="#bmi"  class="ui-btn ui-btn-icon-left ui-icon-grid" id="slidepan">BMI (Body Mass Index)</a></li>
+                <li><a href="#tmr" class="ui-btn ui-btn-icon-left ui-icon-clock" id="slidepan">Timer</a></li>
+                </ul>
+                </div>   
+                <li><a href="#add-form" class="ui-btn ui-btn-icon-left ui-icon-phone" id="slidepan">Contact</a></li>
+        
+     
+    </ul>
+   </div>
+  <div role="main" class="ui-content">
+
+         <div id="myDIV" class="header">
+           <input type="text" id='reminderText' placeholder="Title...">
+           <input type="date" id='date'>
+           <input type="time" id='time'>
+
+           <button class="glyphicon glyphicon-plus">Add Reminder</button>
+         </div>
+
+         <ul id="myUL">
+         </ul>
+         <audio id="xyz" src="audio/ringtone.mp3" preload="auto"></audio>
+
+
+       <div id="id01" class="w3-modal">
+           <div class="w3-modal-content">
+             <header class="w3-container w3-teal">
+               <span onclick="document.getElementById('id01').style.display='none'"
+               class="w3-button w3-display-topright close">&times;</span>
+             </header>
+             <div class="w3-container">
+               <p></p>
+             </div>
+           </div>
+           </div>
+
+         
+         <script src="scripts/diffCalc.js"></script>
+         <script src="scripts/main.js"></script>
+           <script src="scripts/reminder.js"></script>
+         <script src="scripts/parseInput.js"></script>
+           <script src="scripts/remOperation.js"></script>
+           <script src="scripts/alert.js"></script>
+
+     </div>
+  
+  
+  
+      <div data-role="footer" data-position="fixed" data-theme="b">
+<div data-role="navbar">
+<ul>
+
+<li><a href="#pagenews" data-icon="star" >News</a></li>
+<li><a href="#pageinsulin" data-icon="grid">Insulin</a></li>
+<li><a href="#pagehome" data-icon="home">Home</a></li>
+<li><a href="#gluc" data-icon="heart">Glucose</a></li>
+<li><a href="#remind" data-icon="gear" data-theme="c">Reminder</a></li>
+
+</ul>
+</div><!-- /navbar -->
+</div><!-- /footer -->
+  </div>
+
+
+<!--page news-->
+<div data-role="page"  id="pagenews" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+     
+      <h1>News Provided</h1>
+    </div>
+
+
+<div data-role="footer" data-position="fixed" data-theme="b">
+<div data-role="navbar">
+<ul>
+<li><a href="#pagenews" data-icon="star" data-theme="c">News</a></li>
+<li><a href="#pageinsulin" data-icon="grid" >Insulin</a></li>
+<li><a href="#pagehome" data-icon="home" >Home</a></li>
+<li><a href="#gluc" data-icon="heart">Glucose</a></li>
+<li><a href="#remind" data-icon="gear">Reminder</a></li>
+
+</ul>
+</div><!-- /navbar -->
+</div><!-- /footer -->
+</div>
+
+<!--page insulin-->
+<div data-role="page"  id="pageinsulin" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+     
+      <h1>Insulin</h1>   
+    </div>
+
+<div data-role="main" class="ui-content">
+    <form method="post" onSubmit="return submitForm()">
+      
+        <div id="myDIV" class="header">
+          <select type="multiple" id="week" data-theme="a"  >
+            <option value="monday" id="day1">Monday</option>
+            <option value="tuesday"  id="day2">Tuesday</option>
+            <option value="wednesday"  id="day3">Wednesday</option>
+            <option value="thursday"  id="day4">Thursday</option>
+            <option value="friday"  id="day5">Friday</option>
+            <option value="saturday" id="day6">Saturday</option>
+            <option value="sunday"  id="day7">Sunday</option>
+        </select>
+
+    Number of Insulin<input name="number" type="Number" placeholder="e.g 1 2 3.."/>         
+           Date<input type="date" id='d1' placeholder="Date">
+           Time<input type="time" id='t1'  placeholder="Time">
+           <input type="submit" value="submit"/>   
+            </div>  
+    </form>
+  <a href="#pagetab" class="btn">View Insulin Records</a>
+ </div>
+<div data-role="footer" data-position="fixed" data-theme="b">
+<div data-role="navbar">
+<ul>
+
+<li><a href="#pagenews" data-icon="star" >News</a></li>
+<li><a href="#pageinsulin" data-icon="grid"data-theme="c">Insulin</a></li>
+<li><a href="#pagehome" data-icon="home"  >Home</a></li>
+<li><a href="#gluc" data-icon="heart">Glucose</a></li>
+<li><a href="#remind" data-icon="gear" >Reminder</a></li>
+
+</ul>
+</div><!-- /navbar -->
+</div><!-- /footer -->
+</div>
+
+<div data-role="page"  id="pagetab" >
+  <div data-role="header" data-theme="b" data-position="fixed" >  
+   <a href="#pageinsulin" data-role="button" data-theme="c">Back</a>  
+      <h1>Table Insulin </h1>
+    </div>
+<div data-role="footer" data-position="fixed" data-theme="b">
+
+  <h1>Table</h1>
+  </div><!-- /footer -->
+
+   </div>
+
+
+
+<div data-role="page"  id="gluc" >
+<div data-role="header" data-theme="b" data-position="fixed">
+
+<h1>Glucose Form</h1>
+ </div>
+ <div data-role="main" class="ui-content">
+ <h2>Test Your Glucose Level and input here</h2>
+  <form method="post" onSubmit="return submitForm1()">
+      Input your Reading <input type="number" name="mg" id='mg' placeholder="mg/dL">
+        Date<input type="date" id='d2'>
+        Time<input type="time" id='t2'>
+         <input type="submit" class="glyphicon glyphicon-plus" value="Save"/>
+  </form>
+</div>
+ <div data-role="footer" data-position="fixed" data-theme="b">
+<div data-role="navbar">
+<ul>
+
+<li><a href="#pagenews" data-icon="star" >News</a></li>
+<li><a href="#pageinsulin" data-icon="grid">Insulin</a></li>
+<li><a href="#pagehome" data-icon="home"  >Home</a></li>
+<li><a href="#gluc" data-icon="heart"data-theme="c">Glucose</a></li>
+<li><a href="#remind" data-icon="gear" >Reminder</a></li>
+
+</ul>
+</div><!-- /navbar -->
+</div><!-- /footer -->
+</div>
+<div data-role="page"  id="pagetab1" >
+  <div data-role="header" data-theme="b" data-position="fixed" >  
+   <a href="#pageinsulin" data-role="button" data-theme="c">Back</a>  
+      <h1>Table Insulin </h1>
+    </div>
+<div data-role="footer" data-position="fixed" data-theme="b">
+
+  <h1>Table</h1>
+  </div><!-- /footer -->
+
+   </div>
+<!-- /geolocation -->
+<div data-role="page"  id="geo" >
+<div data-role="header" data-theme="b" data-position="fixed">
+<a href="#pagehome" data-role="button" data-theme="c">Home</a>
+<h1>Map</h1>
+ </div>
+<center><div id="mapid" style="width: 450px; height: 610px;"></div></center>
+ <script>
+ if(navigator.geolocation == undefined){
+     alert("Geolocation Undefined");
+    }
+    else{
+    /*alert("Geolocation available");*/
+    navigator.geolocation.getCurrentPosition(userLocation, locationError);
+      
+    function userLocation(position){
+      var latitude = position.coords.latitude;
+      var longitude = position.coords.longitude;
+      var locations = [
+      ["Solferino 3 Playground",-20.291697, 57.476707],
+      ["Vacoas Gymkhana club ",-20.289060, 57.498736],
+      ["Worriors gym Solferino)",-20.283763, 57.479691],
+      ["MyGym jumbo phoenix",-20.278600, 57.494808]   
+      ];
+          var mymap = L.map('mapid').setView([latitude, longitude], 13);
+            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            maxZoom: 19,
+            attribution: 'Map data &copy;'+
+            '<a href="https://www.openstreetmap.org/">OpenStreetMap</a>'+
+            'contributors,<a href="https://creativecommons.org/licenses'+
+            '/by-sa/2.0/">CC-BY-SA</a>,Imagery © <a href="https://'+
+            'www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox.streets'/*change view by using mapbox.streets or mapbox.satellite*/,
+            accessToken:'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYyc'+
+            'XBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw'
+          }).addTo(mymap);
+          var markerA = L.marker([latitude, longitude]).addTo(mymap);
+            markerA.bindPopup("You are here").openPopup();
+          var marker = L.marker([latitude, longitude]).addTo(mymap);          
+          for (var i = 0; i < locations.length; i++) {
+                marker = new L.marker([locations[i][1],locations[i][2]])
+                  .bindPopup(locations[i][0])
+                  .addTo(mymap);
+              }         
+            
+            
+      var circle = L.circle([latitude, longitude], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: 100
+        }).addTo(mymap);
+        circle.bindPopup("This is your current location");    
+            
+    }
+    
+    function locationError(error){
+      switch(error.code){
+        case error.PERMISSION_DENIED:
+        alert("Permission Denied-"+error.message);
+        break;
+        
+        case error.POSITION_UNAVAILABLE:
+        alert("Position not available-"+ error.message);
+        break;
+        
+        case error.TIMEOUT:
+        alert("Request Time out-"+error.message);
+        break;    
+      }
+    }     
+  }
+ </script>
+<div data-role="footer" data-theme="b" data-position="fixed">
+ <h1>Online Map</h1>
+</div>
+</div>
+
+<div data-role="page"  id="bmi" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+    <a href="#pagehome" data-role="button" data-theme="c">Home</a>
+    <a href="#moreinfo" data-role="button" data-theme="c">More Info</a>
+
+    <!--<a href="#pagehome" data-role="button" data-theme="d">Back</a>-->
+      <h1>BMI Calculator</h1>
+    <script type="text/javascript">
+        function calcBMI()
+        {
+            //Obtain user inputs
+            var height=Number(document.getElementById("height").value);
+            var heightunits=document.getElementById("heightunits").value;
+            var weight=Number(document.getElementById("weight").value);
+            var weightunits=document.getElementById("weightunits").value;
+
+
+            //Convert all units to metric
+            if (heightunits=="inches") height/=39.3700787;
+            if (weightunits=="lb") weight/=2.20462;
+
+            //Perform calculation
+            var BMI=weight/Math.pow(height,2);
+
+            //Display result of calculation
+            document.getElementById("output").innerText=Math.round(BMI*100)/100;
+
+         if (BMI < 18.5) document.getElementById("comment").innerHTML = "Underweight";
+         if (BMI >= 18.5 && BMI <= 25) document.getElementById("comment").innerHTML = "Normal";
+         if (BMI >= 25 && BMI <= 30) document.getElementById("comment").innerHTML = "Obese";
+         if (BMI > 30) document.getElementById("comment").innerHTML = "Overweight";
+            document.getElementById("answer").value = output; 
+        }
+    </script>
+
+    <div data-theme="b">
+     <center>
+    <p>Enter your height in Meters/Inches: <input type="number" id="height"/>
+        <select type="multiple" id="heightunits"data-theme="a">
+            <option value="metres" selected="selected" >metres</option>
+            <option value="inches">inches</option>
+        </select>
+    </p>
+    <p>Enter your weight in kilograms/Pounds: <input type="number" id="weight"/>
+        <select type="multiple" id="weightunits" data-theme="a">
+            <option value="kg" selected="selected">kilograms</option>
+            <option value="lb">pounds</option>
+        </select>
+    </p>
+    <input type="submit" value="Calculate" onclick="calcBMI();" data-theme="a">
+    <h1 >Your BMI is: <span id="output"></span></h1>
+    <h4>This means you are:  <span id='comment'></span> </h4> 
+    </center>
+    </div>   
+   </div>
+  <div data-role="footer" data-theme="b" data-position="fixed">
+ <h1>Created By Hansley Theekoy</h1>
+</div>
+ </div>
+
+<div data-role="page" data-dialog="true" id="moreinfo" >
+  <div data-role="header" data-theme="b" data-position="fixed">
+   <h1>Information About Bmi</h1>
+  <a href="#bmi" data-role="button" data-theme="c">Back</a>
+ <h3>Why is BMI important to diabetes</h3>
+ 
+     <p>Being overweight (BMI of 25-29.9), or affected by obesity (BMI of 30-39.9) or severe obesity (BMI of 40 or greater), greatly increases your risk of developing type 2 diabetes. The more excess weight you have, the more resistant your muscle and tissue cells become to your own insulin hormone.</p>
+ 
+  <div data-role="footer" data-theme="b">
+   <h1>Body Mass Index</h1>
+   <a href = "#bmi" data-transition="pop" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-back" data-theme='c'>Dismiss</a>
+  </div>
+ </div>
+</div>
+
+
+
+
+<div data-role="page"  id="tmr" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+     <a href="#pagehome" data-role="button" data-theme="c">Home</a>
+      <h1>Timer</h1>
+    </div>
+  
+  <div role="main" class="ui-content jqm-content jqm-fullwidth" id="list">
+    <div class="container">
+  <center>
+  <div class="row">
+    <table id="sessionCounterTbl">
+      <tr>
+        <td rowspan="2" style="font-weight:bold">
+          Session Time:
+        </td>
+        <td rowspan="2">
+          <button id="incrementSessionTime" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-carat-u"><span class="glyphicon glyphicon-menu-up"></span></button>
+          <br/>
+          <button id="decrementSessionTime" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-carat-d"><span id="decrementSessionTime" class="glyphicon glyphicon-menu-down"></span> </button>
+        </td>
+        <td>
+          <span id="sessionTimeInMinutes">1</span> <span id="sessionTimeLabel">minute</span>
+        </td> 
+        
+        <td>&nbsp; &nbsp;</td>
+        
+        
+           <td rowspan="2" style="font-weight:bold">
+          Break Time:
+        </td>
+        <td rowspan="2">
+          <button id="incrementBreakTime" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-carat-u"><span  class="glyphicon glyphicon-menu-up"></span></button>
+          <br/>
+           <button id="decrementBreakTime" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-left ui-icon-carat-d"><span class="glyphicon glyphicon-menu-down"></span></button>
+        </td>
+        <td>
+          <span id="breakTimeInMinutes">
+  1
+      </span> <span id="breakTimeLabel">minute</span>
+
+
+        </td>
+      </tr>
+    </table>
+    </div>
+  <div class="row">
+    <table id="breakCounterTbl">
+      <tr>
+       
+      </tr>
+    </table>
+  </div>
+
+    <div id="timerUI">
+      <div id="timerNameLabel">
+        Session
+      </div>
+      <div id="timerLabel">
+        <span id="timer1Minutes">00</span>:<span id="timer1Seconds">00</span>
+      </div>
+      <canvas id="sessionCircle" width=350 height=350 >
+    </canvas>
+  </div>
+
+  <button id="startSessionBtn" class="btn">Start session</button>
+  <button id="pauseSessionBtn" class="btn">Pause session</button>
+
+    
+  <div>
+    Timer Status: 
+    <span id="timer1Status">Initialized</span>
+  </div>
+     </center>
+</div>
+
+
+     </div>
+   <script src="scripts/timer.js"></script>
+
+
+<div data-role="footer" data-position="fixed" data-theme="b">
+ <h1>Timer</h1>
+</div><!-- /footer -->
+</div>
+
+<div data-role="page"  id="selfexam" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+     <a href="#pagehome" data-role="button" data-theme="c">Home</a>
+      <h1>Did You Know!?</h1>
+    </div>
+
+   <div data-role="main" data-position="fixed" class="ui-content">
+    <h3>Mauritius</h3>
+  
+    <h2>Diabetes : Women are more at risk </h2>
+    <p>On the 14th of November, the world celebrated the World Diabetes Day. The theme for this year is “Diabetes and Women.” It has been observed that women are more exposed to diabetes risk factors such as poor nutrition and physical inactivity due to socio-economic inequities.
+    </p>
+    <p>The campaign this year will promote access to education and information for all women at risk to strengthen their ability to prevent type 2 diabetes. International Diabetes Federation believes that women can be the key to prevention of diabetes given its leading role in the family.
+    </p>
+    <p>According to statistics, worldwide, 199 million women suffer from diabetes and this number is expected to increase to 313 million by 2040. However, the World Health Organization (WHO) estimates that 1.6 million deaths (men and women combined) were directly due to diabetes in 2015. It predicts that by 2030, this disease will be the seventh leading cause of death in the world.
+    </p>
+    <p>Dr. Laurent Musango, WHO representative in Mauritius, said that in 1980, diabetes affected 108 million people. “In 2014, this number was around 422 million and continues to grow. In addition, regarding adult prevalence, diabetes increased from 4.7% in 1980 to 8.5% in 2014. The rate almost doubled. Before, it was said that diabetes was a disease of the rich, because it was present mainly in developed countries. Today, diabetes is also found in low- and middle-income countries,” he says.
+    </p>
+  <h2>Alarming situation in Mauritius</h2>
+    <p>In Mauritius, the situation is alarming. According to a study on non-communicable diseases and its risk factors (NCD Survey), it is estimated that 257,442 Mauritians aged between 25 and 74 years (19.4% among adults) were diabetic in 2015. The prevalence of pre-diabetic in Mauritius is also a source of concern. A pre-diabetic is a person who shows signs of insulin resistance, but who has not yet developed the disease. In addition, the prevalence of obesity, which contributes to the development of diabetes, was 19.1% in 2015. It is estimated that about 398,417 Mauritians are obese or overweight.
+    </p>
+    <p>Moreover, statistics show that diabetes affects women slightly more than men in Mauritius. The non-communicable disease study found that in 2015, 23.5% of women aged 25 to 74 had diabetes (types 1 and 2). Type 2 diabetes affects 21.3% of women in this age group compared to 19.6% of men. Women are also more numerous (20.2% for women compared to 18.5% for men) to have reached the pre-diabetes stage. According to the Health Statistics Report 2015, diabetes is responsible for the deaths of 1,096 women out of a total of 2,285 deaths in 2015.
+    </p>
+  <h2>Women the most affected</h2>
+    <p>Dr. Drushilla Mungur, head of the Non-Communicable Diseases (NCD) Unit at Flacq Hospital, discusses the relevance of the theme for World Diabetes Day 2017. “Women who develop type 2 diabetes have ten times more chances of having coronary heart disease. There is also gestational diabetes affecting about 11% of pregnant women in Mauritius. It is one of the main complications of pregnancy and presents risks not only for the mother but also and especially for the baby,” she explains.
+    </p>
+    <p>Dr. Drushilla Mungur reports that in 2016, of the 30,931 people tested for type 2 diabetes, 57.8% (17,898) were women. “Generally, it is women who take care of the family’s food. They therefore have a key role to play in the prevention of type 2 diabetes. They are better able to inculcate good habits, such as the practice of physical activity in children from a very young age,” she says. Dr. Drushilla Mungur.
+    </p>
+    <p>Similarly Dr. Veenoo Basant Rai, president of the Mauritius Diabetes Association, states that the woman is a role model for her family, hence it important for her to have a healthy lifestyle while maintaining the balance between professional and family life. For Dr. Basant Rai, the first step in a healthy diet for the child is breastfeeding. “Breastfeeding is the best protection against many non-communicable diseases, including diabetes,” she declares.
+    </p>   
+   
+  <h3>Prevention</h3>
+  <p>The onset of type 2 diabetes can be prevented or delayed by:
+  <ul>
+  <li>Adopting a healthy diet</li>
+  <li>Practicing regular physical activity</li>
+  <li>Keeping the recommended weight</li>
+  <li>Avoiding smoking</li>
+  </ul>
+  It should be noted that a healthy diet, physical activity, medications, regular screening and the treatment of complications help prevent or delay the consequences of diabetes.
+  </p>
+  <img src="img/diabetes4.jpg" style="width:20%; height:20%;">
+  <h3>World Diabetes Day 2018-19 </h3>
+<p>On the 14th November, the World Diabetes Day is celebrated. The theme for this year is The Family and Diabetes. A two-year timeframe has been chosen to best align the World Diabetes Day campaign to the current IDF strategic plan and facilitate planning, development, promotion and participation.
+</p>
+<p>According to WHO, over 425 million people are currently living with diabetes. “Most of these cases are type 2 diabetes, which is largely preventable through regular physical activity, a healthy and balanced diet, and the promotion of healthy living environments. Families have a key role to play in addressing the modifiable risk factors for type 2 diabetes and must be provided with the education, resources and environments to live a healthy lifestyle.” 
+
+</p>  
+  
+ </div>
+  <div data-role="footer" data-position="fixed" data-theme="b">
+    <h1>Stats</h1>
+  </div>
+</div>
+
+<div data-role="page"  id="sign" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+     <a href="#pagehome" data-role="button" data-theme="c">Home</a>
+      <h1>Sign And Symptoms</h1>
+    </div>
+
+   <div data-role="main" data-position="fixed" class="ui-content">
+  
+    <h2>What is diabetes? What are the types of diabetes? </h2>
+    <p>Diabetes is a metabolic disorder that occurs when your blood sugar (glucose), is too high (hyperglycemia). Glucose is what the body uses for energy, and the pancreas produces a hormone called insulin that helps convert the glucose from the food you eat into energy. When the body either does not produce enough insulin, does not produce any at all, or your body becomes resistant to the insulin, the glucose does not reach your cells to be used for energy. This results in the health condition termed diabetes.
+
+    </p>
+    <p>There are two main types of diabetes, type 1 and type 2.
+    </p>
+    <ul>
+    <li>Type 1 diabetes, formerly called juvenile diabetes, because it usually is diagnosed during childhood. Type 1 diabetes is an autoimmune condition in which the body does not produce insulin because the body’s immune system attacks insulin-producing cells from the pancreas called beta cells. Type 1 diabetes is treated by using insulin.
+    </li>
+    <li>Type 2 diabetes is a condition in which cells cannot use blood sugar (glucose) efficiently for energy. This occurs when blood sugar levels get too high over time, and the cells become insensitive or resistant to insulin (termed insulin resistance). There are multiple medications used to treat type 2 diabetes.
+    </li>
+    
+    </ul>
+  
+  <h2>What warning signs and symptoms of diabetes are the same in men and women?</h2>
+    <p>There are diabetes warning signs and symptoms that both women and men have in common, for example:
+    </p>
+    <ul>
+    <li>Excessive thirst and hunger</li>
+    <li>Frequent urination (from urinary tract infections or kidney problems)</li>
+    <li>Weight loss or gain</li>
+    <li>Fatigue</li>
+    <li>Irritability</li>
+    <li>Blurred vision</li>
+    <li>Slow-healing wounds</li>
+    <li>Nausea</li>
+    <li>Skin infections</li>
+    <li>Darkening of skin in areas of body creases (acanthosis nigricans)</li>
+    <li>Breath odor that is fruity, sweet, or an acetone odor</li>
+    <li>Tingling or numbness in the hands or feet</li>
+    </ul>
+    
+  <h2>What is prediabetes (pre-diabetes)?</h2>
+    <p>Prediabetes is a condition in which blood glucose levels are higher than normal, but a person does not yet have diabetes. Prediabetes and high blood glucose levels are a risk factor for developing diabetes, heart disease, and other health problems. Other warning signs prediabetes may include increased urination, feeling you need to urinate more often, and/or increased thirst.
+    </p>
+  <h2>What warning signs and symptoms of diabetes are unique to men?</h2>
+    <p>Signs and symptoms of diabetes unique to men include:</p>   
+    <ul>
+    <li>Erectile dysfunction (ED, impotence)</li>
+    <li>Retrograde ejaculation</li>
+    <li>Low testosterone (low-T)</li>
+    <li>Decreased sex drive (decreased libido) and sexual dysfunction</li>
+    </ul>
+    
+  <h2>What are risk factors for diabetes in men?</h2>
+  <p>Gender is a risk factor for diabetes, and men are at higher risk for developing type 2 diabetes than women.</p>
+
+  <p>Other risk factors for developing diabetes for both men and women include:
+  <ul>
+  <li>Family history: first degree relative with diabetes</li>
+  <li>Ethnicity: increased risk for Asians, Hispanics, and African Americans</li>
+  <li>Obesity</li>
+  <li>Fat distribution: more fat around the middle</li>
+  <li>High blood pressure</li>
+  <li>High cholesterol</li>
+  <li>Sedentary lifestyle (lack of exercise and/or not physically active)</li>
+  <li>Smoking</li>
+  <li>Excess alcohol intake</li>
+  <li>Lack of sleep</li>
+  <li>Low testosterone in men</li>
+  </ul>
+  </p>
+  
+  <h2>Is there a test to diagnose type 1 and type 2 diabetes?</h2>
+<p>Your doctor or other healthcare provider will order urine and blood tests find out if you have diabetes. There are several different types of blood tests used to diagnose diabetes.
+</p>
+<ul>
+  <li>Fasting blood sugar test: After fasting for 12-hours a glucose level is checked in your blood. If it is high, it is indicative of diabetes.</li>
+  <li>Hemoglobin A1C test: This test tells your doctor how your average blood glucose level has been over the past 2-3 months.</li>
+  <li>Normal ranges for HbA1c are between 4% and 5.6%.</li>
+  <li>HbA1c levels that range from 5.7% to 6.4% indicates increased risk of diabetes.</li>
+  <li>HbA1c levels higher than 6.5% indicate diabetes, while higher percentages indicate either worsening diabetic disease or poor response to diabetic treatments.</li>
+  <li>Random blood sugar test: This is a test of your blood sugar at the moment your blood is drawn, but this number can vary greatly based on when you last ate.</li>
+  <li>Oral glucose tolerance test: This test is rarely used in men, but it measures your body’s response to a large amount of glucose.</li> 
+  </ul>
+  
+  
+  <h2>Diabetes: How Blood Sugar Levels Affect Your Body</h2>
+  
+  <img src="img/1.webp">
+  <h3>High: Makes You Pee More</h3>
+  <p>
+  Your kidneys have to work hard to process all that extra sugar in your blood. When they can't keep up, your body gets rid of it, along with water that your body needs.
+  </p>
+  
+  <img src="img/2.webp">
+  <h3>High: Makes You Thirsty</h3>
+  <p>
+  To get rid of that extra sugar, your body draws water from its own tissues. Because you need that fluid to make energy, transfer nutrients, and get rid of waste, a switch flips in your brain to tell you that you're thirsty so you'll drink more.
+  </p>
+  
+  <img src="img/3.webp">
+  <h3>High: Dry Mouth</h3>
+  <p>
+  Your mouth could get dry and cracked at the corners as your body draws fluid from it. Less saliva and more sugar in your blood make infection more likely. Your gums might swell, and white patches can grow on your tongue and inside your cheeks (your doctor will call this oral thrush). It can help to drink more water or chew sugar-free gum.
+  </p>
+  
+  <img src="img/4.webp">
+  <h3>High: Skin Problems</h3>
+  <p>
+  Your body takes water from all over to get rid of extra blood sugar. That may cause dry, itchy, cracked, skin, especially on your legs, elbows, feet, and hands. In time, high glucose levels also can damage nerves. This is called diabetic neuropathy. It can make it harder for you to feel cuts, wounds, or infections. Without treatment, they can become bigger problems, like the loss of a toe, foot, or part of your leg.
+  </p>
+  
+  <img src="img/5.webp">
+  <h3>High: Vision Problems</h3>
+  <p>
+  Your body may pull fluid from the lenses in your eyes, which makes it harder to focus. And high blood sugar can damage blood vessels on the back part of your eye (retina). That can cause long-term vision loss and even blindness.
+  </p>
+  
+  <img src="img/6.webp">
+  <h3>High: Fatigue</h3>
+  <p>
+  When you have type 2 diabetes and your blood sugar is high too often, you become less sensitive to insulin, which helps move energy to your cells. A lack of fuel can make you tired. You can have the same fatigue with type 1 diabetes, because your body can't make its own insulin. If you don't treat it correctly, your levels can stay high all the time. Your doctor can help by prescribing medication and suggesting lifestyle changes you can make.
+  </p>
+  
+  <img src="img/7.webp">
+  <h3>Low: Fatigue</h3>
+  <p>
+  If you have diabetes, insulin is one way to lower your blood sugar when it gets high. But if you take too much, it might remove so much glucose so quickly that your body can't replace it fast enough. That leaves you tired. Other illnesses and drugs also may also upset this cycle and empty your tank.
+  </p>
+  
+  <img src="img/8.webp">
+  <h3>High: Digestive Problems</h3>
+  <p>
+  If your blood sugar is high for too long, it can damage the vagus nerve, which helps move food through your stomach and intestines. You may lose weight because you aren't as hungry. You might have trouble with acid reflux, cramps, vomiting, and severe constipation.
+  </p>
+  
+  <img src="img/9.webp">
+  <h3>Low: Weird Heartbeat</h3>
+  <p>
+  The hormones that help raise your blood sugar when it's too low can also spike your heart rate and make it feel like it skips a beat. (Your doctor will call this arrhythmia.) The drop in glucose most often happens as a side effect of drugs used to treat diabetes.
+  </p>
+  
+  <img src="img/10.webp">
+  <h3>Low: Shakiness</h3>
+  <p>
+  Low glucose can unsettle your central nervous system, which controls how you move. When that happens, your body releases hormones, like adrenaline, to help bring your levels back up. But those same substances also may make your hands and other parts shake or tremble.
+  </p>
+  
+  <img src="img/11.jpg">
+  <h3>Low: Sweaty</h3>
+  <p>
+  The hormones your body releases to raise your blood sugar when it gets too low also make you sweat a lot. It's often one of the first things you notice when your glucose levels fall too far. Your doctor can help you track your levels and try to keep them in a healthy range with medication, exercise, and eating habits.
+  </p>
+  
+  <img src="img/12.webp">
+  <h3>Low: Hungry</h3>
+  <p>
+  Sudden, intense hunger, even after you've eaten, may be a sign that your body doesn't convert food to blood sugar in the right way. Illness or certain drugs can cause it, too. If you have diabetes, your doctor might be able to adjust your medication, which is often the source of the problem.
+  </p>
+  
+  <img src="img/13.webp">
+  <h3>Low: Nausea</h3>
+  <p>
+  Actually, it isn't low blood sugar by itself. When your levels get either very high or very low, it can cause a rebound effect. Your blood sugar bounces from one extreme to the other, confuses your body's digestive system, and makes you feel sick to your stomach.
+  </p>
+  
+  <img src="img/14.jpg">
+  <h3>Low: Dizziness</h3>
+  <p>
+  Your brain cells need glucose to work properly. When they don't have enough, you may start to feel tired, weak, and dizzy. You also might have a headache.
+  </p>
+  
+  <img src="img/15.webp">
+  <h3>Low: Confusion</h3>
+  <p>
+  When your blood sugar gets really low (hypoglycemia), you start to lose your bearings. You may slur your speech or forget where you are. Sometimes it happens so suddenly that you might not even realize you're acting strangely. In serious cases, you could have a seizure or fall into a coma.
+  </p>
+  
+  
+  
+ </div>
+ 
+  <div data-role="footer" data-position="fixed" data-theme="b">
+   <h1>Created By Beden Ramen</h1>
+  </div>
+
+</div>
+
+
+
+<div data-role="page"  id="min" >
+  <div data-role="header" data-theme="b" data-position="fixed" >
+    <a href="#pagehome" data-role="button" data-theme="c">Home</a>
+    
+
+      <h1>Sources </h1>
+  
+     
+
+    <div data-theme="b">
+   
+    </div> 
+
+   </div>
+  <p> http://health.govmu.org/English/Events/Pages/International-Conference-on-Diabetes,-Mauritius.aspx></p>
+  <p>https://defimedia.info/diabetes-women-are-more-risks</p>
+<p>https://www.medicinenet.com/diabetes_body_blood_sugar_levels.htm</p>
+  <div data-role="footer" data-theme="b" data-position="fixed">
+ <h1>Created By Hansley Theekoy</h1>
+</div>
+ </div>
+
+
+
+
+ </body>
+</html>
+
